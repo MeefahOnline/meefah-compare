@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meefah-compare-v3';
+const CACHE_NAME = 'meefah-compare-v4';
 const ASSETS = [
   './',
   './index.html',
