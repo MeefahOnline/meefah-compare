@@ -650,6 +650,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
     <div class="setting-row">
       <div>
+        <div class="setting-label">Hide Shared Empty Specs</div>
+        <div class="setting-desc">Hide spec rows where all compared items show No / empty</div>
+      </div>
+      <div class="toggle on" id="toggleHideBothFalse" onclick="toggleSetting(this)"></div>
+    </div>
+    <div class="setting-row">
+      <div>
         <div class="setting-label">Max Products in Comparison</div>
         <div class="setting-desc">How many items can be compared at once</div>
       </div>
@@ -698,6 +705,7 @@ let DATA = {
     highlight: true,
     showPrices: true,
     showPopups: true,
+    hideBothFalse: true,
     maxCompare: 4,
   }
 };
@@ -753,7 +761,7 @@ function initDemoData() {
       { name: 'Max Drag (kg)', description: 'Maximum braking force the reel can apply to a running fish. Higher drag = ability to stop bigger fish.' },
       { name: 'Bearings (BB)', description: 'Number of ball bearings. More bearings generally means smoother rotation, but quality matters more than quantity.' },
     ],
-    settings: { highlight:true, showPrices:true, showPopups:true, maxCompare:4 }
+    settings: { highlight:true, showPrices:true, showPopups:true, hideBothFalse:true, maxCompare:4 }
   };
 }
 initDemoData();
@@ -1205,6 +1213,13 @@ function renderCompare() {
   // Spec rows
   cat.specs.forEach(spec => {
     const vals = products.map(p => p.specs[spec.id]);
+
+    // Hide rows where ALL compared products are false/empty (for boolean specs only)
+    if (DATA.settings.hideBothFalse !== false && spec.type === 'boolean') {
+      const allEmpty = vals.every(v => v === false || v === null || v === undefined || v === '' || v === 'false');
+      if (allEmpty) return;
+    }
+
     const glossary = DATA.glossary.find(g => g.name === spec.name);
     const clickable = DATA.settings.showPopups && glossary;
 
@@ -1427,6 +1442,7 @@ function toggleSetting(el) {
   DATA.settings.highlight = document.getElementById('toggleHighlight').classList.contains('on');
   DATA.settings.showPrices = document.getElementById('togglePrices').classList.contains('on');
   DATA.settings.showPopups = document.getElementById('togglePopups').classList.contains('on');
+  DATA.settings.hideBothFalse = document.getElementById('toggleHideBothFalse').classList.contains('on');
   saveAll();
 }
 
@@ -1443,6 +1459,7 @@ function renderAll() {
   document.getElementById('toggleHighlight').classList.toggle('on', DATA.settings.highlight);
   document.getElementById('togglePrices').classList.toggle('on', DATA.settings.showPrices);
   document.getElementById('togglePopups').classList.toggle('on', DATA.settings.showPopups);
+  document.getElementById('toggleHideBothFalse').classList.toggle('on', DATA.settings.hideBothFalse !== false);
   if (DATA.settings.maxCompare) document.getElementById('maxCompare').value = DATA.settings.maxCompare;
 }
 
